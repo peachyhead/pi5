@@ -1,6 +1,7 @@
-package org.example;
+package writer;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.util.Set;
 
 public class ObjectDocumenter {
 
-    private static Set<Class<?>> processedClasses = new HashSet<>();
+    private static final Set<Class<?>> processedClasses = new HashSet<>();
 
     public static void document(Object obj, String filename) {
         try (FileWriter writer = new FileWriter(filename)) {
@@ -32,6 +33,8 @@ public class ObjectDocumenter {
             writer.write(indent + "<h1>Class: " + clazz.getName() + "</h1>");
             writer.write(indent + "<h2>Fields:</h2>");
             documentFields(obj, writer, indent);
+            writer.write(indent + "<h2>Constructors: </h2>");
+            documentConstructors(obj, writer, indent);
             writer.write(indent + "<h2>Methods:</h2>");
             documentMethods(obj, writer, indent);
             writer.write(indent + "<h2>Referenced Classes:</h2>");
@@ -60,6 +63,24 @@ public class ObjectDocumenter {
         }
     }
 
+    private static void documentConstructors(Object obj, FileWriter writer, String indent) throws IOException {
+        Class<?> clazz = obj.getClass();
+        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+        for (Constructor<?> constructor : constructors) {
+            var inputTypes = new StringBuilder();
+            for (Class<?> param : constructor.getParameterTypes()) {
+                inputTypes.append(param.getSimpleName()).append(", ");
+            }
+            if (!inputTypes.isEmpty()) {
+                var indexToDelete = inputTypes.lastIndexOf(",");           
+                inputTypes.delete(indexToDelete, indexToDelete + 2);
+            }
+            var msg = MessageFormat.format("<p><strong>Constructor:</strong> {0}({1})</p>",
+                    constructor.getDeclaringClass().getSimpleName(), inputTypes.toString());
+            writer.write(indent + msg);
+        }
+    }
+    
     private static void documentReferencedClasses(Object obj, FileWriter writer, String indent) throws IOException {
         Class<?> clazz = obj.getClass();
         Field[] fields = clazz.getDeclaredFields();
