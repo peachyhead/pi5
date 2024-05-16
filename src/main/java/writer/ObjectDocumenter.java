@@ -81,7 +81,8 @@ public class ObjectDocumenter {
         }
     }
     
-    private static void documentReferencedClasses(Object obj, FileWriter writer, String indent) throws IOException {
+    private static void documentReferencedClasses(Object obj, FileWriter writer, String indent) 
+            throws IOException {
         Class<?> clazz = obj.getClass();
         Field[] fields = clazz.getDeclaredFields();
         documentBriefReferenced(writer, indent, fields);
@@ -89,14 +90,14 @@ public class ObjectDocumenter {
             field.setAccessible(true);
             try {
                 Object value = field.get(obj);
-                if (value != null && !field.getType().isPrimitive() && !field.getType().getName().startsWith("java.lang")) {
-                    if (field.getType().isArray()) {
-                        documentArray(value, writer, indent);
-                    } else {
-                        documentObject(value, writer, indent);
-                    }
-                }
-            } catch (IllegalAccessException e) {
+                if (value == null || field.getType().isPrimitive() || 
+                        field.getType().getName().startsWith("java.lang")) continue;
+                if (field.getType().isArray()) 
+                    documentArray(value, writer, indent);
+                else 
+                    documentObject(value, writer, indent);
+            }
+            catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
         }
@@ -115,7 +116,8 @@ public class ObjectDocumenter {
                 });
     }
 
-    private static void documentArray(Object obj, FileWriter writer, String indent) throws IOException {
+    private static void documentArray(Object obj, FileWriter writer, String indent) 
+            throws IOException {
         for (int i = 0; i < Array.getLength(obj); i++) {
             Object arrayElement = Array.get(obj, i);
             if (arrayElement != null && !arrayElement.getClass().isPrimitive() && 
