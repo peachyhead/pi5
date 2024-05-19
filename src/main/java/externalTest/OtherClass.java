@@ -1,11 +1,11 @@
 package externalTest;
 
 public class OtherClass {
-    private boolean flag;
-    private OtherUsage wowClass;
+    public boolean flag;
+    private OtherUsage otherUsage;
 
-    public OtherClass(OtherUsage wowClass) {
-        this.wowClass = wowClass;
+    public OtherClass(OtherUsage otherUsage) {
+        this.otherUsage = otherUsage;
     }
 
     private int getNumber() {
